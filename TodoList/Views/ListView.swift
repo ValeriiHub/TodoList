@@ -12,19 +12,26 @@ struct ListView: View {
     @EnvironmentObject var listVM: ListViewModel
     
     var body: some View {
-        List {
-            ForEach(listVM.items) { item in
-                ListRowView(item: item)
-                    .onTapGesture {
-                        withAnimation(.linear) {
-                            listVM.updateItem(item: item)
-                        }
+        ZStack {
+            if listVM.items.isEmpty {
+                NoItemsView()
+                    .transition(.opacity.animation(.easeIn))
+            } else {
+                List {
+                    ForEach(listVM.items) { item in
+                        ListRowView(item: item)
+                            .onTapGesture {
+                                withAnimation(.linear) {
+                                    listVM.updateItem(item: item)
+                                }
+                            }
                     }
+                    .onDelete(perform: listVM.deleteItem)
+                    .onMove(perform: listVM.moveItem)
+                }
+                .listStyle(.plain)
             }
-            .onDelete(perform: listVM.deleteItem)
-            .onMove(perform: listVM.moveItem)
         }
-        .listStyle(.plain)
         .navigationTitle("Todo List📝")
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -37,6 +44,7 @@ struct ListView: View {
                     Text("Add")
                 }
             }
+            
         }
     }
 }
